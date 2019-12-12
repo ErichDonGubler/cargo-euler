@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 reqwest = "0.9.5"
-unhtml = "0.3.0"
+unhtml = "0.7.4"
 structopt = "0.2.14"
 unhtml_derive = "0.3.0"
 itertools = "0.8.0"
