@@ -5,7 +5,7 @@ authors = ["Erich Gubler <erichdongubler@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-reqwest = "0.9.5"
+reqwest = "0.10.0"
 unhtml = "0.3.0"
 structopt = "0.2.14"
 unhtml_derive = "0.3.0"
