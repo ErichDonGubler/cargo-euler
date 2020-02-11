@@ -8,8 +8,9 @@ use {
     std::{error::Error, ffi::OsStr, fs::read_to_string, num::ParseIntError},
     structopt::StructOpt,
     unhtml::{
-        failure::Error as UnhtmlError,
-        scraper::{ElementRef, Html, Node, Selector},
+        Error as UnhtmlError,
+        scraper::{Html, Node, Selector},
+        ElemIter,
         FromHtml,
     },
     unhtml_derive::FromHtml,
@@ -24,6 +25,7 @@ fn default_session_id_path() -> &'static OsStr {
 }
 
 #[derive(Debug, StructOpt)]
+#[structopt(about, author)]
 struct Cli {
     session_id: Option<String>,
 }
@@ -56,16 +58,11 @@ fn parse_from_relative_link<'h>(
 }
 
 impl FromHtml for Levels {
-    fn from_html(html: &str) -> Result<Self, UnhtmlError> {
-        let html = Html::parse_fragment(html);
-        Self::from_html_ref(html.root_element())
-    }
-
-    fn from_html_ref(html: ElementRef) -> Result<Self, UnhtmlError> {
+    fn from_elements(iter: ElemIter) -> Result<Self, UnhtmlError> {
         let mut levels = Vec::new();
 
         let selector = Selector::parse("div.info a").unwrap();
-        for anchor_el in html.select(&selector) {
+        for anchor_el in iter {
             use self::Node::*;
 
             let level =
@@ -120,19 +117,13 @@ impl FromHtml for Levels {
 struct Problems(Vec<bool>);
 
 impl FromHtml for Problems {
-    fn from_html(html: &str) -> Result<Self, UnhtmlError> {
-        let html = Html::parse_fragment(html);
-        Self::from_html_ref(html.root_element())
-    }
-
-    fn from_html_ref(html: ElementRef) -> Result<Self, UnhtmlError> {
+    fn from_elements(iter: ElemIter) -> Result<Self, UnhtmlError> {
         use self::Node::*;
 
         let mut problems = Vec::new();
 
         let selector = Selector::parse("td.problem_solved,td.problem_unsolved").unwrap();
-        for problem_el in html.select(&selector) {
-            println!("wat");
+        for problem_el in iter {
             let mut solved = None;
             for class in problem_el.value().classes.iter() {
                 let class: &str = &*class;
